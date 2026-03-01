@@ -106,4 +106,43 @@ public class EiaService
             }
         return results;
     }
+
+    public async Task<List<NaturalGasStorage>> GetNaturalGasStorageAsync()
+    {
+        var url = $"{_settings.BaseUrl}natural-gas/stor/wkly/data/" +
+                $"?api_key={_settings.ApiKey}" +
+                $"&frequency=weekly" +
+                $"&data[0]=value" +
+                $"&facets[process][]=SWO" +
+                $"&facets[duoarea][]=R48" +
+                $"&sort[0][column]=period" +
+                $"&sort[0][direction]=desc" +
+                $"&length=52";
+
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        var json = await response.Content.ReadAsStringAsync();
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var eiaResponse = JsonSerializer.Deserialize<EiaApiResponse>(json, options);
+
+        var results = new List<NaturalGasStorage>();
+
+        if (eiaResponse?.Response?.Data != null)
+        {
+            foreach (var item in eiaResponse.Response.Data)
+            {
+                var period = item.GetValueOrDefault("period")?.ToString() ?? "";
+                var valueStr = item.GetValueOrDefault("value")?.ToString() ?? "0";
+                var unit = item.GetValueOrDefault("units")?.ToString() ?? "";
+
+                if (decimal.TryParse(valueStr, out var storage))
+                {
+                    results.Add(new NaturalGasStorage(period, storage, unit));
+                }
+            }
+        }
+
+        return results;
+    }
 }
