@@ -80,9 +80,12 @@ export function NaturalGasChart() {
             tickFormatter={(v: number) => `${v.toLocaleString()}`}
           />
           <Tooltip
-            formatter={(value: number) => [`${value.toLocaleString()} BCF`, 'Storage']}
-            labelFormatter={(label: string) =>
-              new Date(label).toLocaleDateString('en-US', {
+            formatter={(value) => [
+              typeof value === 'number' ? `${value.toLocaleString()} BCF` : `${value} BCF`,
+              'Storage',
+            ]}
+            labelFormatter={(label) =>
+              new Date(String(label)).toLocaleDateString('en-US', {
                 month: 'long',
                 day: 'numeric',
                 year: 'numeric',

@@ -43,7 +43,7 @@ export function OilPricesChart() {
 
   useEffect(() => {
     api.getOilPrices()
-      .then((data) => setPrices(data as OilPrice[]))
+      .then((data) => setPrices(data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);

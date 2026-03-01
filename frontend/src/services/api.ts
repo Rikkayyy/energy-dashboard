@@ -1,3 +1,5 @@
+import type { OilPrice, ElectricityGeneration, NaturalGasStorage } from '../types/energy';
+
 const BASE_URL = '/api';
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -10,14 +12,14 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 export const api = {
   getOilPrices() {
-    return fetchJson(`${BASE_URL}/oil-prices`);
+    return fetchJson<OilPrice[]>(`${BASE_URL}/oil-prices`);
   },
 
   getElectricityGeneration() {
-    return fetchJson(`${BASE_URL}/electricity-generation`);
+    return fetchJson<ElectricityGeneration[]>(`${BASE_URL}/electricity-generation`);
   },
 
   getNaturalGasStorage() {
-    return fetchJson(`${BASE_URL}/natural-gas/storage`);
+    return fetchJson<NaturalGasStorage[]>(`${BASE_URL}/natural-gas/storage`);
   },
 };
