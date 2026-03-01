@@ -38,9 +38,10 @@ public class EiaService
                   $"&frequency=daily" +
                   $"&data[0]=value" +
                   $"&facets[product][]=EPCWTI" +
+                  $"&facets[product][]=EPCBRENT" +
                   $"&sort[0][column]=period" +
                   $"&sort[0][direction]=desc" +
-                  $"&length=30";
+                  $"&length=60";
 
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
@@ -60,7 +61,7 @@ public class EiaService
                 var date = item.GetValueOrDefault("period")?.ToString() ?? "";
                 var productName = item.GetValueOrDefault("product-name")?.ToString() ?? "";
                 var valueStr = item.GetValueOrDefault("value")?.ToString() ?? "0";
-                var unit = item.GetValueOrDefault("unit")?.ToString() ?? "";
+                var unit = item.GetValueOrDefault("units")?.ToString() ?? "";
 
                 if (decimal.TryParse(valueStr, out var price))
                 {
@@ -115,7 +116,6 @@ public class EiaService
             {
                 foreach (var item in eiaResponse.Response.Data)
                 {
-                    Console.WriteLine(string.Join(", ", item.Select(k => $"{k.Key}: {k.Value}")));
                     var period = item.GetValueOrDefault("period")?.ToString() ?? "";
                     var state = item.GetValueOrDefault("stateDescription")?.ToString() ?? "";
                     var fuelTypeId = item.GetValueOrDefault("fueltypeid")?.ToString() ?? "";
