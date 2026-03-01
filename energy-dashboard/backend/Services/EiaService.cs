@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using backend.Configuration;
 using backend.Models;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace backend.Services;
 
@@ -10,15 +11,28 @@ public class EiaService
 {
     private readonly HttpClient _httpClient;
     private readonly EiaSettings _settings;
+    private readonly IMemoryCache _cache;
 
-    public EiaService(HttpClient httpClient, IOptions<EiaSettings> settings)
+    public EiaService(HttpClient httpClient, IOptions<EiaSettings> settings, IMemoryCache cache)
     {
         _httpClient = httpClient;
         _settings = settings.Value;
+        _cache = cache;
     }
 
     public async Task<List<OilPrice>> GetOilPricesAsync()
     {
+        var cacheKey = "oil-prices";
+
+        // Check cache first
+        if (_cache.TryGetValue(cacheKey, out List<OilPrice>? cached) && cached != null)
+        {
+            // Console.WriteLine("Cache hit for oil prices");
+            return cached;
+        }
+
+        // Console.WriteLine("Cache miss for oil prices, fetching from API");
+        // Cache miss, fetch from API
         var url = $"{_settings.BaseUrl}petroleum/pri/spt/data/" +
                   $"?api_key={_settings.ApiKey}" +
                   $"&frequency=daily" +
@@ -54,11 +68,22 @@ public class EiaService
                 }
             }
         }
+
+        _cache.Set(cacheKey, prices, TimeSpan.FromMinutes(30)); // Cache for 30 minutes
+
         return prices;
     }
 
     public async Task<List<ElectricityGeneration>> GetElectricityGenerationsAsync()
     {
+        var cacheKey = "electricity-generations";
+
+        // Check cache first
+        if (_cache.TryGetValue(cacheKey, out List<ElectricityGeneration>? cached) && cached != null)
+        {
+            return cached;
+        }
+
         var url = $"{_settings.BaseUrl}electricity/electric-power-operational-data/data/" +
                   $"?api_key={_settings.ApiKey}" +
                   $"&frequency=monthly" +
@@ -104,11 +129,22 @@ public class EiaService
                     }
                 }
             }
+
+        _cache.Set(cacheKey, results, TimeSpan.FromMinutes(60)); // Cache for 60 minutes
+
         return results;
     }
 
     public async Task<List<NaturalGasStorage>> GetNaturalGasStorageAsync()
     {
+
+        var cacheKey = "natural-gas-storage";
+        // Check cache first
+        if (_cache.TryGetValue(cacheKey, out List<NaturalGasStorage>? cached) && cached != null)
+        {
+            return cached;
+        }
+        
         var url = $"{_settings.BaseUrl}natural-gas/stor/wkly/data/" +
                 $"?api_key={_settings.ApiKey}" +
                 $"&frequency=weekly" +
@@ -142,6 +178,8 @@ public class EiaService
                 }
             }
         }
+
+        _cache.Set(cacheKey, results, TimeSpan.FromMinutes(60)); // Cache for 60 minutes
 
         return results;
     }

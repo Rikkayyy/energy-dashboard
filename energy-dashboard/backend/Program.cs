@@ -8,6 +8,7 @@ builder.Services.Configure<EiaSettings>(builder.Configuration.GetSection(EiaSett
 
 // Services
 builder.Services.AddHttpClient<EiaService>();
+builder.Services.AddMemoryCache();
 
 // OpenAPI
 builder.Services.AddOpenApi();
