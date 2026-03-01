@@ -14,7 +14,7 @@ export const api = {
   },
 
   getElectricityGeneration() {
-    return fetchJson(`${BASE_URL}/electricity/generation`);
+    return fetchJson(`${BASE_URL}/electricity-generation`);
   },
 
   getNaturalGasStorage() {
