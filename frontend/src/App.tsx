@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { OilPricesChart } from './components/OilPricesChart';
 import { ElectricityChart } from './components/ElectricityChart';
-import { NaturalGasChart } from './components/NaturalGasChat';
+import { NaturalGasChart } from './components/NaturalGasChart';
 
 type Tab = 'oil' | 'electricity' | 'naturalGas';
 
